@@ -64,20 +64,13 @@ uint32_t msTimer;
 extern int msc_started;
 
 int main(void) {
-    bool appValid = validate_application();
-
-    if (appValid && target_get_force_app()) {
-         jump_to_application();
-         return 0;
-    }
-    
     /* Setup clocks */
     target_clock_setup();
 
     /* Initialize GPIO/LEDs if needed */
     target_gpio_setup();
 
-    if (target_get_force_bootloader() || !appValid) {
+    if (target_get_force_bootloader() || !validate_application()) {
         /* Setup USB */
         {
             char serial[USB_SERIAL_NUM_LENGTH+1];
@@ -88,8 +81,8 @@ int main(void) {
 
         usbd_device* usbd_dev = usb_setup();
         //dfu_setup(usbd_dev, &target_manifest_app, NULL, NULL);
-       	usb_msc_init(usbd_dev, 0x82, 64, 0x01, 64, "Example Ltd", "UF2 Bootloader",
-		    "42.00", UF2_NUM_BLOCKS, read_block, write_block);
+        usb_msc_init(usbd_dev, 0x82, 64, 0x01, 64, "Example Ltd", "UF2 Bootloader",
+            "42.00", UF2_NUM_BLOCKS, read_block, write_block);
         winusb_setup(usbd_dev);
 
         int cycleCount = 0;
@@ -111,12 +104,9 @@ int main(void) {
                 else if (br < 10)
                     d = 2;
 
-                //int v = msTimer % 500;
-                //target_set_led(v < 50);
-
                 ghostfat_1ms();
-
-                if (appValid && !msc_started && msTimer > 3000) {
+                
+                if (validate_application() && !msc_started && msTimer > 3000) {
                     target_manifest_app();
                 }
             }
