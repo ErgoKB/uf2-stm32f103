@@ -42,7 +42,11 @@
 #define UF2_FAMILY 0x5ee21072
 
 #undef VOLUME_LABEL
+#ifdef KB_VOLUME_LABEL
+#define VOLUME_LABEL KB_VOLUME_LABEL
+#else
 #define VOLUME_LABEL "BLUEPILL"
+#endif
 #undef PRODUCT_NAME
 #define PRODUCT_NAME "Blue Pill STM32F103xB"
 #undef BOARD_ID
